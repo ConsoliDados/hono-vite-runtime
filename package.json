@@ -1,0 +1,36 @@
+{
+	"name": "@consolidados/hono-vite-runtime",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./server/hono-base": "./server/hono-base.ts",
+		"./server/actions-handler": "./server/actions-handler.ts",
+		"./server/api-loader": "./server/api-loader.ts",
+		"./server/middleware/*": "./server/middleware/*.ts",
+		"./server/detect-runtime": "./server/detect-runtime.ts",
+		"./server/start": "./server/start.ts",
+		"./server/adapters/*": "./server/adapters/*.ts",
+		"./plugins/server-actions": "./plugins/server-actions.ts",
+		"./plugins/file-based-routing": "./plugins/file-based-routing/index.ts",
+		"./plugins/apply-meta": "./plugins/apply-meta.ts",
+		"./plugins/web-runtime": "./plugins/web-runtime.ts"
+	},
+	"scripts": {
+		"lint": "biome check .",
+		"format": "biome format --write .",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"hono": "^4.11.5"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@hono/node-server": "^1.19.9",
+		"bun-types": "^1.2.3",
+		"fast-glob": "^3.3.3",
+		"react-router-dom": "6",
+		"typescript": "^5.7.3",
+		"vite": "^6.0.7"
+	}
+}
