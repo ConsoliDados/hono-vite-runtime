@@ -638,7 +638,7 @@ export function generateRoutesFile(
   // Add React imports if code splitting is enabled
   const reactImports = codeSplitting ? "import { lazy, Suspense } from 'react';\n" : ''
 
-  const createMetaImport = "import { createMeta } from '@monorepo/web-runtime/plugins/apply-meta';"
+  const createMetaImport = "import { createMeta } from '@consolidados/hono-vite-runtime/plugins/apply-meta';"
 
   const errorElement = routeTree.notFound
     ? `errorElement: <${routeTree.notFound?.componentName}/>,`
