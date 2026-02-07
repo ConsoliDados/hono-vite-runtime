@@ -40,15 +40,9 @@ export function buildRouteTree(files: ScannedFile[], _baseDir: string): RouteNod
   for (const file of files) {
     const { segments, fileName: _fileName, fileType: _fileType } = parseFilePath(file.relativePath)
 
-    // Filter out route groups from segments for directory key
-    // (react-19-demo) -> removed, so files are grouped by their effective path
-    const nonGroupSegments = segments.filter((seg) => {
-      const routeInfo = convertSegmentToRoute(seg)
-      return !routeInfo.isGroup
-    })
-
-    // Use "." for root-level files (empty segments array after filtering)
-    const dirKey = nonGroupSegments.length === 0 ? '.' : nonGroupSegments.join('/')
+    // Use segments directly (including route groups) for directory key
+    // This allows (home)/layout.tsx and layout.tsx to be separate entries
+    const dirKey = segments.length === 0 ? '.' : segments.join('/')
 
     if (!filesByDir.has(dirKey)) {
       filesByDir.set(dirKey, [])
@@ -451,6 +445,62 @@ function generateRouteObject(
       lines.push(`${indent}  ${generateMetaHandler(node.page.metaName)},`)
     }
     lines.push(`${indent}},`)
+  }
+
+  // Handle route groups
+  if (node.isGroup) {
+    if (node.layout) {
+      // Group WITH layout: Create route wrapper with path: ""
+      lines.push(`${indent}{`)
+      lines.push(`${indent}  path: "",  // Route group - invisible in URL`)
+      lines.push(`${indent}  element: <${node.layout.componentName} />,`)
+
+      if (node.error) {
+        lines.push(`${indent}  errorElement: <${node.error.componentName} />,`)
+      }
+
+      lines.push(`${indent}  children: [`)
+
+      // Add page as index child if exists
+      if (node.page) {
+        lines.push(`${indent}    {`)
+        lines.push(`${indent}      index: true,`)
+        const element = wrapWithSuspense(
+          `<${node.page.componentName} />`,
+          `${indent}    `,
+          codeSplitting,
+          node.loading
+        )
+        lines.push(`${indent}      element: ${element},`)
+        if (node.page.hasLoader && node.page.loaderName) {
+          lines.push(`${indent}      loader: ${node.page.loaderName},`)
+        }
+        if (node.page.hasAction && node.page.actionName) {
+          lines.push(`${indent}      action: ${node.page.actionName},`)
+        }
+        if (node.page.hasMeta && node.page.metaName) {
+          lines.push(`${indent}      ${generateMetaHandler(node.page.metaName)},`)
+        }
+        lines.push(`${indent}    },`)
+      }
+
+      // Add regular children
+      for (const child of node.children) {
+        const childStr = generateRouteObject(child, `${indent}    `, codeSplitting, false)
+        lines.push(childStr)
+      }
+
+      lines.push(`${indent}  ],`)
+      lines.push(`${indent}},`)
+    } else {
+      // Group WITHOUT layout: Transparent - render children directly
+      for (const child of node.children) {
+        const childStr = generateRouteObject(child, indent, codeSplitting, false)
+        lines.push(childStr)
+      }
+    }
+
+    return lines.join('\n')
   }
 
   // Skip root node
