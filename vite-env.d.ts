@@ -1,19 +1,19 @@
 /// <reference types="vite/client" />
 
-declare module 'virtual:server-actions-manifest' {
+declare module "virtual:server-actions-manifest" {
   interface ActionMeta {
-    filePath: string
-    functionName: string
+    filePath: string;
+    functionName: string;
   }
 
   const manifest: {
-    salt: string
-    actions: Record<string, ActionMeta>
-  }
+    salt: string;
+    actions: Record<string, ActionMeta>;
+  };
 
-  export default manifest
+  export default manifest;
 }
 
-declare module 'virtual:server-actions-runtime' {
-  export function callServerAction(actionHash: string, args: unknown[]): Promise<unknown>
+declare module "virtual:server-actions-runtime" {
+  export function callServerAction(actionHash: string, args: unknown[]): Promise<unknown>;
 }

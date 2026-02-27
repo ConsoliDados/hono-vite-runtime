@@ -3,64 +3,64 @@
  * Generates TypeScript types for type-safe routing
  */
 
-import type { RouteNode } from './types.ts'
+import type { RouteNode } from "./types.ts";
 
 export interface GeneratedTypes {
   /** Path to generated types file */
-  filePath: string
+  filePath: string;
   /** Generated TypeScript content */
-  content: string
+  content: string;
 }
 
 /**
  * Extract all route paths and their params from route tree
  */
-function extractRoutePaths(node: RouteNode, parentPath = ''): RouteInfo[] {
-  const routes: RouteInfo[] = []
+function extractRoutePaths(node: RouteNode, parentPath = ""): RouteInfo[] {
+  const routes: RouteInfo[] = [];
 
   // Skip root node path
-  const currentPath = node.path === '/' ? parentPath : `${parentPath}/${node.path}`
+  const currentPath = node.path === "/" ? parentPath : `${parentPath}/${node.path}`;
 
   // Collect params from dynamic segments
-  const params: string[] = []
-  if (node.isDynamic && node.path.startsWith(':')) {
+  const params: string[] = [];
+  if (node.isDynamic && node.path.startsWith(":")) {
     // Extract param name (":id" -> "id")
-    params.push(node.path.slice(1))
+    params.push(node.path.slice(1));
   }
 
   // If this node has a page, it's a valid route
   if (node.page) {
     // Get loader data type if available
-    const loaderType = node.page.hasLoader ? `${node.page.componentName}LoaderData` : 'undefined'
+    const loaderType = node.page.hasLoader ? `${node.page.componentName}LoaderData` : "undefined";
 
     routes.push({
-      path: currentPath || '/',
+      path: currentPath || "/",
       params,
       loaderType,
       hasLoader: node.page.hasLoader,
-    })
+    });
   }
 
   // Recurse through children, accumulating params
   for (const child of node.children) {
-    const childRoutes = extractRoutePaths(child, currentPath)
+    const childRoutes = extractRoutePaths(child, currentPath);
 
     // Inherit parent params
     for (const route of childRoutes) {
-      route.params = [...params, ...route.params]
+      route.params = [...params, ...route.params];
     }
 
-    routes.push(...childRoutes)
+    routes.push(...childRoutes);
   }
 
-  return routes
+  return routes;
 }
 
 interface RouteInfo {
-  path: string
-  params: string[]
-  loaderType: string
-  hasLoader: boolean
+  path: string;
+  params: string[];
+  loaderType: string;
+  hasLoader: boolean;
 }
 
 /**
@@ -68,19 +68,19 @@ interface RouteInfo {
  */
 function generateParamsType(params: string[]): string {
   if (params.length === 0) {
-    return '{}'
+    return "{}";
   }
 
-  const fields = params.map((param) => `${param}: string`).join('; ')
-  return `{ ${fields} }`
+  const fields = params.map((param) => `${param}: string`).join("; ");
+  return `{ ${fields} }`;
 }
 
 /**
  * Generate route info type for each route
  */
 function generateRouteInfoType(route: RouteInfo): string {
-  const paramsType = generateParamsType(route.params)
-  return `  '${route.path}': { params: ${paramsType}; loader: ${route.loaderType} };`
+  const paramsType = generateParamsType(route.params);
+  return `  '${route.path}': { params: ${paramsType}; loader: ${route.loaderType} };`;
 }
 
 /**
@@ -88,23 +88,23 @@ function generateRouteInfoType(route: RouteInfo): string {
  */
 export function generateTypeDeclarations(routeTree: RouteNode): string {
   // Extract all routes
-  const routes = extractRoutePaths(routeTree)
+  const routes = extractRoutePaths(routeTree);
 
   // Filter out duplicate paths (can happen with index routes)
   const uniqueRoutes = routes.reduce((acc, route) => {
     if (!acc.has(route.path)) {
-      acc.set(route.path, route)
+      acc.set(route.path, route);
     }
-    return acc
-  }, new Map<string, RouteInfo>())
+    return acc;
+  }, new Map<string, RouteInfo>());
 
   // Generate route info types
-  const routeInfoTypes = Array.from(uniqueRoutes.values()).map(generateRouteInfoType).join('\n')
+  const routeInfoTypes = Array.from(uniqueRoutes.values()).map(generateRouteInfoType).join("\n");
 
   // Generate path union type
   const paths = Array.from(uniqueRoutes.keys())
     .map((path) => `  | '${path}'`)
-    .join('\n')
+    .join("\n");
 
   // Build complete type declaration
   const content = `/**
@@ -151,9 +151,9 @@ export type NavigateOptions<T extends AppRoutePaths> = {
   to: T;
   params: RouteParams<T>;
 };
-`
+`;
 
-  return content
+  return content;
 }
 
 /**
@@ -163,22 +163,22 @@ export type NavigateOptions<T extends AppRoutePaths> = {
  * should be manually declared by users in their route files.
  */
 export function generateLoaderTypeStubs(routeTree: RouteNode): string {
-  const routes = extractRoutePaths(routeTree)
+  const routes = extractRoutePaths(routeTree);
 
   // Find routes with loaders
   const loadersWithTypes = routes
     .filter((route) => route.hasLoader)
     .map((route) => route.loaderType)
-    .filter((type, index, self) => self.indexOf(type) === index) // unique
+    .filter((type, index, self) => self.indexOf(type) === index); // unique
 
   if (loadersWithTypes.length === 0) {
-    return ''
+    return "";
   }
 
   const stubs = loadersWithTypes
     .map(
       (loaderType) => `/**
- * Loader data type for ${loaderType.replace('LoaderData', '')}
+ * Loader data type for ${loaderType.replace("LoaderData", "")}
  *
  * TODO: Define the actual return type in your route file:
  *
@@ -190,7 +190,7 @@ export interface ${loaderType} {
   [key: string]: unknown;
 }`
     )
-    .join('\n\n')
+    .join("\n\n");
 
-  return `\n\n// Loader Data Type Stubs\n// Override these in your route files\n\n${stubs}`
+  return `\n\n// Loader Data Type Stubs\n// Override these in your route files\n\n${stubs}`;
 }

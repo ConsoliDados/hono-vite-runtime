@@ -4,80 +4,80 @@
 
 export interface PluginOptions {
   /** Directory to scan for routes (relative to src/) */
-  pagesDir?: string
+  pagesDir?: string;
   /** Output file path (relative to src/) */
-  outputFile?: string
+  outputFile?: string;
   /** Enable debug logging */
-  debug?: boolean
+  debug?: boolean;
   /** Enable code splitting with React.lazy() (default: true) */
-  codeSplitting?: boolean
+  codeSplitting?: boolean;
   /** Enable TypeScript type generation (default: true) */
-  typeGeneration?: boolean
+  typeGeneration?: boolean;
   /** Directory for generated types (default: '.react-router/types') */
-  typesDir?: string
+  typesDir?: string;
   /** Enable route metadata support (default: true) */
-  metadataSupport?: boolean
+  metadataSupport?: boolean;
 }
 
 export interface RouteFile {
   /** Absolute file path */
-  absolutePath: string
+  absolutePath: string;
   /** Relative path from pages/ directory */
-  relativePath: string
+  relativePath: string;
   /** File type */
-  type: 'page' | 'layout' | 'error' | 'loading' | 'not-found'
+  type: "page" | "layout" | "error" | "loading" | "not-found";
   /** Whether file has default export (component) */
-  hasDefaultExport: boolean
+  hasDefaultExport: boolean;
   /** Whether file has loader export */
-  hasLoader: boolean
+  hasLoader: boolean;
   /** Whether file has action export */
-  hasAction: boolean
+  hasAction: boolean;
   /** Whether file has meta export (Phase 2) */
-  hasMeta: boolean
+  hasMeta: boolean;
   /** Generated component name */
-  componentName: string
+  componentName: string;
   /** Generated loader name */
-  loaderName?: string
+  loaderName?: string;
   /** Generated action name */
-  actionName?: string
+  actionName?: string;
   /** Generated meta name (Phase 2) */
-  metaName?: string
+  metaName?: string;
 }
 
 export interface RouteNode {
   /** Route path segment (e.g., "users", ":id", "*") */
-  path: string
+  path: string;
   /** Full route path from root */
-  fullPath: string
+  fullPath: string;
   /** Original file system path segment (before conversion) */
-  originalSegment: string
+  originalSegment: string;
   /** Whether this is a dynamic parameter ([id]) */
-  isDynamic: boolean
+  isDynamic: boolean;
   /** Whether this is a catch-all route ([...slug]) */
-  isCatchAll: boolean
+  isCatchAll: boolean;
   /** Whether this is optional catch-all ([[...slug]]) */
-  isOptionalCatchAll: boolean
+  isOptionalCatchAll: boolean;
   /** Whether this is a route group ((group)) */
-  isGroup: boolean
+  isGroup: boolean;
   /** Layout file for this route (if exists) */
-  layout?: RouteFile
+  layout?: RouteFile;
   /** Page file for this route (if exists) */
-  page?: RouteFile
+  page?: RouteFile;
   /** Error boundary file (Phase 3) */
-  error?: RouteFile
+  error?: RouteFile;
   /** Loading fallback file (Phase 3) */
-  loading?: RouteFile
+  loading?: RouteFile;
   /** Not FOund fallback file (Phase 3) */
-  notFound?: RouteFile
+  notFound?: RouteFile;
   /** Child routes */
-  children: RouteNode[]
+  children: RouteNode[];
   /** Parent route */
-  parent?: RouteNode
+  parent?: RouteNode;
 }
 
 export interface GeneratedRoute {
   /** Import statements */
-  imports: string[]
+  imports: string[];
   /** Route object definition */
-  routeObject: string
+  routeObject: string;
 }

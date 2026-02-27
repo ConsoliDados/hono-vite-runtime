@@ -1,6 +1,6 @@
-import { detectRuntime } from "./detect-runtime";
-import type { ServerConfig } from "../plugins/web-runtime";
 import type { Hono } from "hono";
+import type { ServerConfig } from "../plugins/web-runtime";
+import { detectRuntime } from "./detect-runtime";
 
 /**
  * Auto-detects the runtime and delegates to the matching adapter.
@@ -12,13 +12,13 @@ import type { Hono } from "hono";
  * that only exist inside Vite.
  */
 export async function startServer(config: ServerConfig, app: Hono) {
-	const detected = detectRuntime();
-	const merged: ServerConfig = { ...config, runtime: detected };
+  const detected = detectRuntime();
+  const merged: ServerConfig = { ...config, runtime: detected };
 
-	console.log(`[web-runtime] Detected runtime: ${detected}`);
+  console.log(`[web-runtime] Detected runtime: ${detected}`);
 
-	// Dynamic import — only the selected adapter is loaded at runtime.
-	// Bun resolves .ts imports natively; this file is never Vite-bundled.
-	const adapter = await import(`./adapters/${detected}.ts`);
-	await adapter.startServer(merged, app);
+  // Dynamic import — only the selected adapter is loaded at runtime.
+  // Bun resolves .ts imports natively; this file is never Vite-bundled.
+  const adapter = await import(`./adapters/${detected}.ts`);
+  await adapter.startServer(merged, app);
 }
